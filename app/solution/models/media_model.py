@@ -13,7 +13,7 @@ class MediaDB(BaseModel):
     s3_filename: Optional[str] = ""
     upload_url_expires_at: Optional[datetime] = None
     s3_extra_info: Optional[Dict] = None
-
+    status: Optional[str] = ""
     model_config = ConfigDict(
         extra="allow",
         json_encoders={

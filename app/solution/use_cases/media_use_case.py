@@ -52,5 +52,6 @@ class MediaUseCase:
 
         if media.status != "UPLOADED":
             raise CustomAPIResponse(status_code=400, message="Media is not in 'UPLOADED' state")
-
-        return await self.media_repository.trigger_publish(body)
+        result = await self.media_repository.trigger_publish(body)
+        log.info(f"{LOG_USECASE} Trigger publish result {result}")
+        return result if result else None

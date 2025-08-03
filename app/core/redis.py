@@ -1,4 +1,5 @@
 """Redis client for handling redis operations."""
+import json
 import redis
 from app.core.logger_custom import log
 from app.core.constants import LOG_CORE, REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_PASSWORD, REDIS_DEFAULT_EXPIRATION_TIME
@@ -26,4 +27,13 @@ class RedisClient:
     async def publish(self, channel, message):
         """Publish a message to a channel."""
         log.info(f"{LOG_CORE} publish {channel} {message}")
-        return self.redis.publish(channel, message)
+        result = self.redis.publish(channel, message)
+        log.info(f"{LOG_CORE} publish result {result}")
+        return result
+
+    async def publish_xadd(self, channel, message):
+        """Publish a message to a channel."""
+        log.info(f"{LOG_CORE} publish {channel} {message}")
+        result = self.redis.xadd(channel, message)
+        log.info(f"{LOG_CORE} publish result {result}")
+        return result

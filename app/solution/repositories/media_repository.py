@@ -1,5 +1,6 @@
 """Media Repository"""
 
+import json
 from typing import Optional
 
 from pymongo.results import InsertOneResult
@@ -48,7 +49,7 @@ class MediaRepository:
     async def trigger_publish(self, body: MediaPublishTrigger) -> Optional[int]:
         """Trigger publish"""
         log.info(f"{LOG_REPOSITORY}  {body}")
-        result = await self.redis.publish(
+        result = await self.redis.publish_xadd(
             body.channel, {"s3_filename": body.s3_filename, "command": body.command}
         )
         return result if result else None
@@ -57,4 +58,4 @@ class MediaRepository:
         """Get media by s3 filename"""
         log.info(f"{LOG_REPOSITORY}  {s3_filename}")
         result = await self.mongo.find_one({"s3_filename": s3_filename})
-        return result if result else None
+        return MediaDB(**result) if result else None
