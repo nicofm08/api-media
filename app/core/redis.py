@@ -1,0 +1,24 @@
+"""Redis client for handling redis operations."""
+import redis
+from app.core.logger_custom import log
+from app.core.constants import LOG_CORE, REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_PASSWORD
+
+class RedisClient:
+    """RedisClient class to interact"""
+    def __init__(self):
+        self.redis = redis.Redis(
+            host=REDIS_HOST,
+            port=REDIS_PORT,
+            db=REDIS_DB,
+            password=REDIS_PASSWORD,
+        )
+    
+    async def read(self, key):
+        """Read a key from redis."""
+        log.info(f"{LOG_CORE} read {key}")
+        return self.redis.get(key)
+
+    async def write(self, key, value, expiration_time=300):
+        """Write a key to redis."""
+        log.info(f"{LOG_CORE} write {key} {value}")
+        return self.redis.set(key, value, ex=expiration_time)
