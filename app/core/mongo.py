@@ -17,7 +17,6 @@ class MongoClient:
 
         self.db = self._client[db]
         self.collection = self.db[collection]
-        log.info(f"{LOG_CORE} The connection to MongoDB was established successfully")
 
     async def find_one(self, query, sort=None):
         """Find one document in the collection"""
