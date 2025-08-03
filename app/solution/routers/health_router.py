@@ -15,7 +15,8 @@ router = APIRouter()
     "",
     summary="Receive and Response Health",
     description="Receive empty payload and check health status",
-    response_model=None
+    response_model=None,
+    tags=["health"]
 )
 @execution_time
 async def health(rq: Request) -> HealthResponse:
@@ -36,7 +37,8 @@ async def health(rq: Request) -> HealthResponse:
     "/constants",
     summary="Receive and Response Constants",
     description="Receive empty payload and return constants",
-    response_model=None
+    response_model=None,
+    tags=["health"]
 )
 @execution_time
 async def constants(rq: Request):
@@ -56,7 +58,8 @@ async def constants(rq: Request):
     "/memory",
     summary="Receive and Clean Memory",
     description="Receive empty payload and clean Memory",
-    response_model=None
+    response_model=None,
+    tags=["health"]
 )
 @execution_time
 async def memory(rq: Request) -> HealthResponse:

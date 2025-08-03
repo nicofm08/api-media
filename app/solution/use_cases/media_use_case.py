@@ -6,7 +6,8 @@ import uuid
 from pymongo.results import InsertOneResult
 from app.core.constants import LOG_USECASE
 from app.core.logger_custom import log
-from app.solution.models.media_model import MediaDB
+from app.solution.exceptions.errors_excepctions import CustomAPIResponse
+from app.solution.models.media_model import MediaDB, MediaPublishTrigger
 from app.solution.models.s3_model import S3DB
 from app.solution.repositories.media_repository import MediaRepository
 
@@ -34,3 +35,22 @@ class MediaUseCase:
         log.info(f"{LOG_USECASE} Create media")
         result = await self.media_repository.create(media)
         return result if result else None
+
+    async def update_generic(self, body: dict) -> Optional[int]:
+        """Update generic"""
+        log.info(f"{LOG_USECASE} Update generic")
+        result = await self.media_repository.update_generic(body)
+        return result if result else None
+
+    async def trigger_publish(self, body: MediaPublishTrigger) -> Optional[int]:
+        """Trigger publish when media is in UPLOADED state"""
+        log.info(f"{LOG_USECASE} Trigger publish")
+
+        media = await self.media_repository.get_media_by_s3_filename(body.s3_filename)
+        if not media:
+            raise CustomAPIResponse(status_code=400, message="Media not found")
+
+        if media.status != "UPLOADED":
+            raise CustomAPIResponse(status_code=400, message="Media is not in 'UPLOADED' state")
+
+        return await self.media_repository.trigger_publish(body)

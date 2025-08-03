@@ -22,3 +22,8 @@ class MediaDB(BaseModel):
         },
         arbitrary_types_allowed=True
     )
+
+class MediaPublishTrigger(BaseModel):
+    channel: Optional[str] = "media_uploaded"
+    s3_filename: Optional[str] = ""
+    command: Optional[str] = "PROCESS"
