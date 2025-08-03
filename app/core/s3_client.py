@@ -50,6 +50,7 @@ class S3Client:
             )
             raise e
 
+
     async def preasigned_url(
         self, folder: str, key: str, content_type: str, expires_in: int = 3600
     ) -> S3DB:
