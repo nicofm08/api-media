@@ -4,18 +4,16 @@ env:
   env_file: ".env.qa"
   registry: "ghcr.io"
   user_github: "nicofm08"
-  port_server: 32004
-  port_container: 8000
-  ip_container: 172.22.17.2
-  memory: 100m
-  cpu: 0.5
+  port_server: 41004
+  port_container: 3000
+  ip_container: 172.22.41.2
 
 name: Deploy to GitHub Packages
 
 on:
     pull_request:
       branches:
-        - _qa
+        - qa
       types:
         - opened
         - synchronize
@@ -62,5 +60,5 @@ jobs:
             docker rmi ${{ env.registry }}/${{ env.user_github }}/${{ env.app_name }}-${{ env.app_env }}:${{ env.app_env }} --force  # Eliminar la imagen forzadamente
             docker pull ${{ env.registry }}/${{ env.user_github }}/${{ env.app_name }}-${{ env.app_env }}:${{ env.app_env }} # Descargar la imagen
             docker network create --subnet=172.22.0.0/16 crazy-ntw # Crear una red
-            docker run -d --memory="${{ env.memory }}" --cpus="${{ env.cpu }}" --name ${{ env.app_name }}-${{ env.app_env }} --net crazy-ntw  --ip ${{ env.ip_container }} -p ${{ env.port_server }}:${{ env.port_container }} ${{ env.registry }}/${{ env.user_github }}/${{ env.app_name }}-${{ env.app_env }}:${{ env.app_env }} # Correr la imagen
+            docker run -d --name ${{ env.app_name }}-${{ env.app_env }} --net crazy-ntw  --ip ${{ env.ip_container }} -p ${{ env.port_server }}:${{ env.port_container }} ${{ env.registry }}/${{ env.user_github }}/${{ env.app_name }}-${{ env.app_env }}:${{ env.app_env }} # Correr la imagen
           EOF
