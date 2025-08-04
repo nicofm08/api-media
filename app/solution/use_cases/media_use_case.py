@@ -42,7 +42,7 @@ class MediaUseCase:
         result = await self.media_repository.update_generic(body)
         return result if result else None
 
-    async def trigger_publish(self, body: MediaPublishTrigger) -> Optional[int]:
+    async def trigger_publish(self, body: MediaPublishTrigger) -> Optional[str]:
         """Trigger publish when media is in UPLOADED state"""
         log.info(f"{LOG_USECASE} Trigger publish")
 
@@ -52,6 +52,7 @@ class MediaUseCase:
 
         if media.status != "UPLOADED":
             raise CustomAPIResponse(status_code=400, message="Media is not in 'UPLOADED' state")
-        result = await self.media_repository.trigger_publish(body)
+        log.info(f"{LOG_USECASE} Trigger publish body {body}")
+        result = await self.media_repository.process_media(body)
         log.info(f"{LOG_USECASE} Trigger publish result {result}")
-        return result if result else None
+        return result.id if result else None

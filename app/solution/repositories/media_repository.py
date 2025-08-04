@@ -12,6 +12,7 @@ from app.core.s3_client import S3Client
 from app.solution.models.media_model import MediaDB, MediaPublishTrigger
 from app.solution.models.s3_model import S3DB
 from app.core.redis import RedisClient
+from celery import Celery
 
 
 class MediaRepository:
@@ -22,6 +23,10 @@ class MediaRepository:
         self.utils = UtilsCore()
         self.s3_client = S3Client()
         self.redis = RedisClient()
+        self.celery = Celery(
+            broker="redis://66.97.47.57:32768/0",
+            backend="redis://66.97.47.57:32768/1",
+        )
 
     async def get_preasigned_url(
         self, folder: str, key: str, content_type: str
@@ -59,3 +64,10 @@ class MediaRepository:
         log.info(f"{LOG_REPOSITORY}  {s3_filename}")
         result = await self.mongo.find_one({"s3_filename": s3_filename})
         return MediaDB(**result) if result else None
+
+    async def process_media(self,  body: MediaPublishTrigger):
+        """Process media"""
+        log.info(f"{LOG_REPOSITORY}  {body.model_dump()}")
+        result = self.celery.send_task("process_media", args=[body.model_dump()])
+        log.info(f"{LOG_REPOSITORY}  {result}")
+        return result if result else None

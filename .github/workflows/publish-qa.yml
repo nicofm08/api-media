@@ -4,7 +4,7 @@ env:
   env_file: ".env.qa"
   registry: "ghcr.io"
   user_github: "nicofm08"
-  port_server: 17004
+  port_server: 32004
   port_container: 8000
   ip_container: 172.22.17.2
   memory: 100m

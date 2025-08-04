@@ -42,7 +42,7 @@ class MediaService:
             raise CustomAPIResponse(status_code=400, message="Error updating media")
         return response
 
-    async def trigger_publish(self, body: MediaPublishTrigger) -> Optional[int]:
+    async def trigger_publish(self, body: MediaPublishTrigger) -> Optional[str]:
         """Trigger publish"""
         log.info(f"{LOG_SERVICE} Trigger publish")
         response = await self.media_use_case.trigger_publish(body)

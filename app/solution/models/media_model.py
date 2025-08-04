@@ -27,3 +27,4 @@ class MediaPublishTrigger(BaseModel):
     channel: Optional[str] = "media_uploaded"
     s3_filename: Optional[str] = ""
     command: Optional[str] = "PROCESS"
+    media_type: Optional[str] = "IMAGE"

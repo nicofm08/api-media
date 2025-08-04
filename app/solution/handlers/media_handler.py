@@ -26,7 +26,7 @@ class MediaHandler:
         response = await self.media_service.update_generic(body)
         return response
 
-    async def trigger_publish(self, body: MediaPublishTrigger) -> Optional[int]:
+    async def trigger_publish(self, body: MediaPublishTrigger) -> Optional[str]:
         """Trigger publish"""
         log.info(f"{LOG_HANDLER} Trigger publish")
         response = await self.media_service.trigger_publish(body)

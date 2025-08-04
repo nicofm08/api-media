@@ -4,7 +4,7 @@ env:
   env_file: ".env.develop"
   registry: "ghcr.io"
   user_github: "nicofm08"
-  port_server: 17003
+  port_server: 32003
   port_container: 8000
   ip_container: 172.22.17.1
   memory: 400m

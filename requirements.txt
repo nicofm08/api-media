@@ -13,3 +13,4 @@ pytest-asyncio
 pylint
 pymongo
 boto3
+celery
