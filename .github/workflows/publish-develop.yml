@@ -4,11 +4,9 @@ env:
   env_file: ".env.develop"
   registry: "ghcr.io"
   user_github: "nicofm08"
-  port_server: 32003
+  port_server: 41003
   port_container: 8000
-  ip_container: 172.22.17.1
-  memory: 400m
-  cpu: 2.0
+  ip_container: 172.22.41.1
 
 name: Deploy to GitHub Packages
 
@@ -39,12 +37,12 @@ jobs:
 
       - name: Load environment variables
         run: |
-              cp ${{ env.env_file }} .env
+          cp ${{ env.env_file }} .env
 
       - name: Build and push image
         run: |
-            docker build . --tag ${{ env.registry }}/${{ env.user_github }}/${{ env.app_name }}-${{ env.app_env }}:${{ env.app_env }}
-            docker push ${{ env.registry }}/${{ env.user_github }}/${{ env.app_name }}-${{ env.app_env }}:${{ env.app_env }}
+          docker build . --tag ${{ env.registry }}/${{ env.user_github }}/${{ env.app_name }}-${{ env.app_env }}:${{ env.app_env }}
+          docker push ${{ env.registry }}/${{ env.user_github }}/${{ env.app_name }}-${{ env.app_env }}:${{ env.app_env }}
 
   deploy:
     needs: create-docker-image
@@ -55,13 +53,23 @@ jobs:
 
       - name: SSH into Server
         run: |
-          sshpass -p ${{ secrets.SSH_PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_HOST }} -p 5064 << EOF
+          sshpass -p ${{ secrets.SSH_PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_HOST }} -p 5064 << 'EOF'
             cd /docker_image_custom
             docker login ${{ env.registry }} -u ${{ env.user_github }} -p ${{ secrets.TOKEN_CI_CD }}
-            docker stop ${{ env.app_name }}-${{ env.app_env }}  # Detener el contenedor
-            docker rm ${{ env.app_name }}-${{ env.app_env }}  # Eliminar el contenedor
-            docker rmi ${{ env.registry }}/${{ env.user_github }}/${{ env.app_name }}-${{ env.app_env }}:${{ env.app_env }} --force  # Eliminar la imagen forzadamente
+            docker stop ${{ env.app_name }}-${{ env.app_env }} || true  # Detener el contenedor si existe
+            docker rm ${{ env.app_name }}-${{ env.app_env }} || true   # Eliminar el contenedor si existe
+            docker rmi ${{ env.registry }}/${{ env.user_github }}/${{ env.app_name }}-${{ env.app_env }}:${{ env.app_env }} --force || true  # Eliminar la imagen si existe
             docker pull ${{ env.registry }}/${{ env.user_github }}/${{ env.app_name }}-${{ env.app_env }}:${{ env.app_env }} # Descargar la imagen
-            docker network create --subnet=172.22.0.0/16 crazy-ntw # Crear una red
-            docker run -d --memory="${{ env.memory }}" --cpus="${{ env.cpu }}" --name ${{ env.app_name }}-${{ env.app_env }} --net crazy-ntw  --ip ${{ env.ip_container }} -p ${{ env.port_server }}:${{ env.port_container }} ${{ env.registry }}/${{ env.user_github }}/${{ env.app_name }}-${{ env.app_env }}:${{ env.app_env }} # Correr la imagen
+            docker network create --subnet=172.22.0.0/16 crazy-ntw || true # Crear la red si no existe
+            docker run -d \
+              --name ${{ env.app_name }}-${{ env.app_env }} \
+              --net crazy-ntw \
+              --ip ${{ env.ip_container }} \
+              -p ${{ env.port_server }}:${{ env.port_container }} \
+              --label "traefik.enable=true" \
+              --label "traefik.http.routers.${{ env.app_name }}.rule=Host(\`66.97.47.57\`) || PathPrefix(\`/api\`)" \
+              --label "traefik.http.routers.${{ env.app_name }}.entrypoints=websecure" \
+              --label "traefik.http.routers.${{ env.app_name }}.tls.certresolver=le" \
+              --label "traefik.http.services.${{ env.app_name }}.loadbalancer.server.port=${{ env.port_container }}" \
+              ${{ env.registry }}/${{ env.user_github }}/${{ env.app_name }}-${{ env.app_env }}:${{ env.app_env }}
           EOF
