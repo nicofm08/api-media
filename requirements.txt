@@ -1,0 +1,16 @@
+fastapi[standard]
+requests
+python-dotenv
+mysql-connector-python
+motor
+asyncio
+pydantic
+loguru
+httpx
+redis
+pytest
+pytest-asyncio
+pylint
+pymongo
+boto3
+celery
